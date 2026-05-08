@@ -9,7 +9,7 @@ As an open-source project, the `artisanpack-ui/secure-uploads` package is open t
 - [Getting Started](#getting-started)
 - [Issue Templates](#issue-templates)
 - [Branching Strategy](#branching-strategy)
-- [Merge Request Process](#merge-request-process)
+- [Pull Request Process](#merge-request-process)
 - [Label System](#label-system)
 - [Milestone Strategy](#milestone-strategy)
 - [Forking and Contributing](#forking-and-contributing)
@@ -44,7 +44,7 @@ Before contributing, make sure you have:
 - Git installed on your machine
 - PHP 8.1 or higher
 - Composer
-- A GitLab, GitHub, or other Git hosting account
+- A GitHub account
 
 ### Setting Up Your Development Environment
 
@@ -167,30 +167,30 @@ git checkout -b fix/your-bugfix
 1. **Create branch** from `main`
 2. **Make changes** and commit
 3. **Push** to your fork
-4. **Create MR** to `main` branch
+4. **Create PR** to `main` branch
 5. **Wait for review** from maintainer
 6. **Address feedback** if needed
 7. **Maintainer merges** when approved
 
-**Important:** Always create your branch from `main` and target `main` in your merge request.
+**Important:** Always create your branch from `main` and target `main` in your pull request.
 
-## Merge Request Process
+## Pull Request Process
 
-### Before Creating a Merge Request
+### Before Creating a Pull Request
 
-1. **Ensure there isn't an existing MR** for the same change
-2. **Create or link to an issue** - All MRs should reference an issue
+1. **Ensure there isn't an existing PR** for the same change
+2. **Create or link to an issue** - All PRs should reference an issue
 3. **Test your changes** locally
 4. **Run code linting** - Follow the naming conventions
 5. **Update documentation** if needed
 
-### Creating Your Merge Request
+### Creating Your Pull Request
 
-We have templates for different types of merge requests:
+We have templates for different types of pull requests:
 
 #### Default Template (Bug Fixes, Features, Enhancements, Tasks)
 
-Use this for most MRs. It includes:
+Use this for most PRs. It includes:
 - Description of changes
 - Type of change (Bug fix, Feature, Enhancement, etc.)
 - Testing performed
@@ -208,30 +208,30 @@ The template automatically applies:
 
 #### Release Template (Maintainers Only)
 
-This template is for release merge requests and should only be used by maintainers.
+This template is for release pull requests and should only be used by maintainers.
 
-### Merge Request Guidelines
+### Pull Request Guidelines
 
 **For External Contributors:**
-1. Create your MR using the Default template
+1. Create your PR using the Default template
 2. Fill out all sections completely
 3. Link to the related issue: `Closes #123`
 4. Wait for maintainer review
 5. Address any feedback promptly
-6. A maintainer will approve and merge your MR
+6. A maintainer will approve and merge your PR
 
-**Note:** All MRs require maintainer approval. External contributors cannot merge their own MRs.
+**Note:** All PRs require maintainer approval. External contributors cannot merge their own PRs.
 
 ### Code Review Process
 
-When you submit an MR:
+When you submit an PR:
 1. A maintainer will review within 1-3 days
 2. They may request changes or ask questions
 3. Address feedback by pushing new commits
 4. Once approved, the maintainer will merge
 5. Your branch will be automatically deleted
 
-### After Your MR is Merged
+### After Your PR is Merged
 
 - Your changes will be included in the next release
 - The related issue will automatically close
@@ -240,11 +240,11 @@ When you submit an MR:
 
 ## Label System
 
-We use a comprehensive label system to organize issues and merge requests:
+We use a comprehensive label system to organize issues and pull requests:
 
 ### Status Labels (Workflow)
 
-Labels that track where an issue/MR is in the workflow:
+Labels that track where an issue/PR is in the workflow:
 - `Status::Backlog` - Not yet prioritized
 - `Status::To Do` - Ready to work on
 - `Status::In Progress` - Currently being worked on
@@ -321,162 +321,108 @@ When you create an issue:
 
 ## Forking and Contributing
 
-ArtisanPack UI is primarily hosted on GitLab, but you can contribute from any Git hosting platform.
+`secure-uploads` is hosted on GitHub at [ArtisanPack-UI/secure-uploads](https://github.com/ArtisanPack-UI/secure-uploads). The fork-and-PR flow is the canonical contribution path; the Bitbucket and patch-file flows below exist for contributors who can't or don't want to use GitHub directly.
 
-### From GitLab (Primary)
-
-**Easiest method:**
+### From GitHub (Primary)
 
 1. **Fork the repository**
-   - Go to the project page
-   - Click "Fork" button
-   - Fork will be created in your account
+   - Visit [ArtisanPack-UI/secure-uploads](https://github.com/ArtisanPack-UI/secure-uploads)
+   - Click "Fork" — the fork will land in your account
 
 2. **Clone your fork**
    ```bash
-   git clone git@gitlab.com:your-username/secure-uploads.git
+   git clone git@github.com:your-username/secure-uploads.git
    cd secure-uploads
    ```
 
 3. **Add upstream remote**
    ```bash
-   git remote add upstream git@gitlab.com:jacob-martella-web-design/artisanpack-ui/secure-uploads.git
+   git remote add upstream git@github.com:ArtisanPack-UI/secure-uploads.git
    ```
 
-4. **Create feature branch**
+4. **Create a feature branch from `main`**
    ```bash
    git checkout -b feature/your-feature
    ```
 
-5. **Make changes and push**
+5. **Make changes, commit, and push**
    ```bash
    git add .
-   git commit -m "Add your feature"
+   git commit -m "feat: short description"
    git push origin feature/your-feature
    ```
 
-6. **Create Merge Request**
-   - Go to your fork on GitLab
-   - Click "Create merge request"
-   - Target the original repository's `main` branch
-   - Fill out the MR template
+6. **Open a Pull Request**
+   - On your fork, click "Compare & pull request"
+   - Target `ArtisanPack-UI/secure-uploads:main`
+   - Fill out the PR template (CodeRabbit will auto-review)
    - Submit
-
-### From GitHub
-
-**If you prefer GitHub:**
-
-1. **Clone on GitLab** (even without account)
-   ```bash
-   git clone https://gitlab.com/jacob-martella-web-design/artisanpack-ui/secure-uploads.git
-   cd secure-uploads
-   ```
-
-2. **Create repository on GitHub**
-   - Go to GitHub and create a new repository
-   - Don't initialize with README
-
-3. **Add GitHub as remote**
-   ```bash
-   git remote add github git@github.com:your-username/secure-uploads.git
-   ```
-
-4. **Create feature branch**
-   ```bash
-   git checkout -b feature/your-feature
-   ```
-
-5. **Make changes and push to GitHub**
-   ```bash
-   git add .
-   git commit -m "Add your feature"
-   git push github feature/your-feature
-   ```
-
-6. **Create Pull Request**
-   - Create PR on GitHub as normal
-   - Mention you're contributing to a GitLab project
-   - Include: "This PR is for GitLab project: [link]"
-
-7. **Maintainer will create GitLab MR**
-   - Maintainer will pull your changes
-   - Create MR on GitLab
-   - Credit you in commits
-
-**Note:** This requires maintainer coordination. GitLab forks are preferred.
 
 ### From Bitbucket
 
-Similar to GitHub process:
+Bitbucket users can mirror their work to a GitHub fork before opening a PR:
 
-1. **Clone from GitLab**
+1. **Clone from GitHub**
    ```bash
-   git clone https://gitlab.com/jacob-martella-web-design/artisanpack-ui/secure-uploads.git
+   git clone https://github.com/ArtisanPack-UI/secure-uploads.git
    cd secure-uploads
    ```
 
-2. **Create Bitbucket repository**
+2. **Create a Bitbucket repository for your working copy**
 
-3. **Add Bitbucket remote**
+3. **Add Bitbucket as a remote**
    ```bash
    git remote add bitbucket git@bitbucket.org:your-username/secure-uploads.git
    ```
 
-4. **Push to Bitbucket**
+4. **Develop on a feature branch and push to Bitbucket**
    ```bash
    git checkout -b feature/your-feature
    # ... make changes ...
    git push bitbucket feature/your-feature
    ```
 
-5. **Notify maintainer**
-   - Create issue on GitLab: "Contribution available"
-   - Link to your Bitbucket branch
-   - Maintainer will integrate
+5. **Mirror to GitHub and open a PR**
+   - Create a GitHub fork (see Primary flow above)
+   - Add it as a remote and push your branch there
+   - Open a PR against `ArtisanPack-UI/secure-uploads:main`
 
 ### From Local Git (No Account)
 
-**If you don't want any hosting account:**
+If you can't use GitHub at all, submit a patch:
 
-1. **Clone project**
+1. **Clone the project**
    ```bash
-   git clone https://gitlab.com/jacob-martella-web-design/artisanpack-ui/secure-uploads.git
+   git clone https://github.com/ArtisanPack-UI/secure-uploads.git
    cd secure-uploads
    ```
 
-2. **Create feature branch**
+2. **Create a feature branch and make your changes**
    ```bash
    git checkout -b feature/your-feature
-   ```
-
-3. **Make changes**
-   ```bash
-   # ... work on your feature ...
    git add .
-   git commit -m "Add your feature"
+   git commit -m "feat: short description"
    ```
 
-4. **Create patch file**
+3. **Create a patch file**
    ```bash
    git format-patch main --stdout > my-contribution.patch
    ```
 
-5. **Submit patch**
-   - Open an issue on this repository's tracker and attach the `.patch` file there.
-   - Describe the change in the issue body.
-   - A maintainer will pick it up during triage.
+4. **Submit the patch**
+   - Open an issue on the GitHub tracker and attach the `.patch` file
+   - Describe the change in the issue body
+   - A maintainer will pick it up during triage
 
-6. **Maintainer applies patch**
+5. **Maintainer applies the patch**
    ```bash
    git apply my-contribution.patch
    ```
 
 ### Keeping Your Fork Updated
 
-**For GitLab forks:**
-
 ```bash
-# Fetch upstream changes
+# Fetch upstream changes from ArtisanPack-UI/secure-uploads
 git fetch upstream
 
 # Merge into your main
@@ -487,31 +433,15 @@ git merge upstream/main
 git push origin main
 ```
 
-**For other platforms:**
-
-```bash
-# Add GitLab as upstream
-git remote add upstream https://gitlab.com/jacob-martella-web-design/artisanpack-ui/secure-uploads.git
-
-# Fetch and merge
-git fetch upstream
-git checkout main
-git merge upstream/main
-
-# Push to your platform
-git push origin main  # or 'github' or 'bitbucket'
-```
-
 ### Contribution Workflow Summary
 
-| Platform | Difficulty | Preferred? | Notes |
-|----------|-----------|------------|-------|
-| GitLab Fork | ⭐ Easy | ✅ Yes | Native workflow, use this if possible |
-| GitHub | ⭐⭐ Medium | ⚠️ Okay | Requires maintainer coordination |
-| Bitbucket | ⭐⭐ Medium | ⚠️ Okay | Requires maintainer coordination |
-| Local/Patch | ⭐⭐⭐ Advanced | ⚠️ Last resort | For privacy or no-account contributors |
+| Path | Difficulty | Preferred? | Notes |
+|------|------------|------------|-------|
+| GitHub fork + PR | ⭐ Easy | ✅ Yes | Canonical flow; CI + CodeRabbit run automatically |
+| Bitbucket mirror → GitHub PR | ⭐⭐ Medium | ⚠️ Okay | Develop on Bitbucket, mirror to a GitHub fork to open the PR |
+| Local patch file | ⭐⭐⭐ Advanced | ⚠️ Last resort | For contributors who can't use GitHub |
 
-**Recommendation:** Use GitLab fork whenever possible for the smoothest contribution experience.
+**Recommendation:** Use the GitHub fork + PR flow whenever possible — it's the smoothest path and the only one that gets automated CI + CodeRabbit feedback before maintainer review.
 
 ## Naming Conventions
 
@@ -605,6 +535,6 @@ We appreciate your time and effort! 🎉
 
 ---
 
-**Project Maintainer:** Jacob Martella ([@viewfromthebox94](https://gitlab.com/viewfromthebox94))  
+**Project Maintainer:** Jacob Martella ([@ViewFromTheBox](https://github.com/ViewFromTheBox))  
 **License:** [MIT](LICENSE)
 **Website:** [https://jacobmartella.me](https://jacobmartella.me)
