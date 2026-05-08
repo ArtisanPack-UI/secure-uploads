@@ -1,6 +1,6 @@
-# Contributing to ArtisanPack UI
+# Contributing to secure-uploads
 
-As an open source project, ArtisanPack UI is open to contributions from everyone. You don't need to be a developer to contribute. Whether it's contributing code, writing documentation, testing the CMS or anything in between there's a place for you here to contribute.
+As an open-source project, the `artisanpack-ui/secure-uploads` package is open to contributions from everyone. You don't need to be a developer to contribute. Whether it's writing code, improving documentation, exercising the package against your own Laravel app and reporting bugs, or helping triage issues, there's a place for you here.
 
 ## Table of Contents
 
@@ -19,23 +19,21 @@ As an open source project, ArtisanPack UI is open to contributions from everyone
 
 In order to make this a best place for everyone to contribute, there are some hard and fast rules that everyone needs to abide by.
 
-* ArtisanPack UI is open to everyone no matter your race, ethnicity, gender, who you love, etc. In order to keep it that way, there's zero tolerance for any racist, misogynistic, xenophobic, bigoted, Zionist, antisemitic (yes, there is a difference), Islamophobic, etc. messages. This includes messages sent to a fellow contributor outside of this repository. In short, don't be a jerk. Failure to comply will result in a ban from the project.
+* This package is open to everyone no matter your race, ethnicity, gender, who you love, etc. To keep it that way, there's zero tolerance for any racist, misogynistic, xenophobic, bigoted, Zionist, antisemitic (yes, there is a difference), Islamophobic, etc. messages. This includes messages sent to a fellow contributor outside this repository. In short, don't be a jerk. Failure to comply will result in a ban from the project.
 * Be respectful when communicating with fellow contributors.
-* Respect the decisions made for what to include in the CMS.
-* Work together to create the best possible content management system.
+* Respect the decisions made about what belongs in the package.
+* Work together to make `secure-uploads` the best file-upload-security toolkit it can be.
 
 ## Ways to Contribute
 
-There are a ton of different ways to contribute to ArtisanPack UI even if you're not a developer. Here are some (but not all) of the ways you can contribute to the project:
+There are a lot of ways to contribute to `secure-uploads` even if you're not a developer. Here are some (but not all) of them:
 
-* Write code for ArtisanPack UI core
-* Create plugins to extend ArtisanPack UI
-* Create themes to add designs for ArtisanPack UI
-* Test and report bugs found in the CMS
-* Write documentation
-* Write tutorials and talk about ArtisanPack UI on your blog and/or social media profiles
-* Review pull/merge requests
-* Improve existing code
+* Write code for the package — validators, scanners, middleware, rules
+* Add or improve tests, including malware-scanner test fixtures
+* Test the package against your own Laravel app and report bugs
+* Write documentation, examples, and recipes
+* Talk about `secure-uploads` on your blog or social media
+* Review pull requests
 * Help answer questions in issues
 
 ## Getting Started
@@ -123,7 +121,7 @@ After filling out the template:
 4. Submit the issue
 5. A maintainer will review and triage it
 
-**Note:** Issues are initially added to the "Future Release" milestone until they're scheduled for a specific version.
+**Note:** New issues are initially unassigned to a milestone. A maintainer assigns one during triage — `Future Release` for ideas under consideration without a timeline, or a specific version (e.g. `v1.0`, `v1.1`) once scheduled.
 
 ## Branching Strategy
 
@@ -464,10 +462,9 @@ Similar to GitHub process:
    ```
 
 5. **Submit patch**
-   - Create GitLab issue (no account needed via email)
-   - Or email patch to: [your email or link to contribution email]
-   - Describe changes in issue/email
-   - Attach `.patch` file
+   - Open an issue on this repository's tracker and attach the `.patch` file there.
+   - Describe the change in the issue body.
+   - A maintainer will pick it up during triage.
 
 6. **Maintainer applies patch**
    ```bash
