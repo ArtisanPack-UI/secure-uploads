@@ -246,6 +246,6 @@ class HasSecureFilesTraitTest extends TestCase
             $table->id();
             $table->string( 'name' );
             $table->timestamps();
-        });
+        } );
     }
 }

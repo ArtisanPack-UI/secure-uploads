@@ -36,7 +36,7 @@ class ClamAvScanner implements MalwareScannerInterface
     public function __construct(
         ?string $socketPath = null,
         ?string $binaryPath = null,
-        int $timeout = 30,
+        ?int $timeout = null,
     ) {
         $config = config( 'artisanpack.secure-uploads.malwareScanning.clamav', [] );
 
@@ -135,21 +135,94 @@ class ClamAvScanner implements MalwareScannerInterface
 
     /**
      * Scan a file via the clamscan binary.
+     *
+     * Uses proc_open + non-blocking stream reads + stream_select so the
+     * configured timeout is enforced. exec() would block indefinitely on
+     * a hung clamscan, defeating the timeout entirely.
      */
     protected function scanViaBinary( string $filePath ): ScanResult
     {
         $escapedPath   = escapeshellarg( $filePath );
         $escapedBinary = escapeshellarg( $this->binaryPath );
 
-        // Run clamscan with no recursion, no summary
-        $command = sprintf( '%s --no-summary %s 2>&1', $escapedBinary, $escapedPath );
+        $command = sprintf( '%s --no-summary %s', $escapedBinary, $escapedPath );
 
-        $output     = [];
-        $returnCode = 0;
+        $descriptors = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
 
-        exec( $command, $output, $returnCode );
+        $process = proc_open( $command, $descriptors, $pipes );
 
-        $response = implode( "\n", $output );
+        if ( ! is_resource( $process ) ) {
+            return ScanResult::error( 'Failed to launch clamscan', $this->getName() );
+        }
+
+        fclose( $pipes[0] );
+        stream_set_blocking( $pipes[1], false );
+        stream_set_blocking( $pipes[2], false );
+
+        $deadline = microtime( true ) + $this->timeout;
+        $stdout   = '';
+        $stderr   = '';
+
+        while ( true ) {
+            $remaining = $deadline - microtime( true );
+
+            if ( $remaining <= 0 ) {
+                proc_terminate( $process, 9 );
+                fclose( $pipes[1] );
+                fclose( $pipes[2] );
+                proc_close( $process );
+
+                Log::warning( 'ClamAV: scan timed out', [
+                    'file'    => $filePath,
+                    'timeout' => $this->timeout,
+                ] );
+
+                return ScanResult::error( 'ClamAV scan timed out', $this->getName() );
+            }
+
+            $read   = [ $pipes[1], $pipes[2] ];
+            $write  = null;
+            $except = null;
+
+            $secs  = (int) $remaining;
+            $usecs = (int) ( ( $remaining - $secs ) * 1_000_000 );
+
+            $ready = stream_select( $read, $write, $except, $secs, $usecs );
+
+            if ( false === $ready ) {
+                // Interrupted; loop and re-check the deadline.
+                continue;
+            }
+
+            foreach ( $read as $stream ) {
+                $chunk = stream_get_contents( $stream );
+                if ( '' !== $chunk && false !== $chunk ) {
+                    if ( $stream === $pipes[1] ) {
+                        $stdout .= $chunk;
+                    } else {
+                        $stderr .= $chunk;
+                    }
+                }
+            }
+
+            $status = proc_get_status( $process );
+            if ( ! $status['running'] ) {
+                // Drain any final bytes after the process exits.
+                $stdout .= (string) stream_get_contents( $pipes[1] );
+                $stderr .= (string) stream_get_contents( $pipes[2] );
+                break;
+            }
+        }
+
+        fclose( $pipes[1] );
+        fclose( $pipes[2] );
+
+        $returnCode = proc_close( $process );
+        $response   = trim( $stdout . ( '' !== $stderr ? "\n" . $stderr : '' ) );
 
         // Return codes: 0 = clean, 1 = virus found, 2 = error
         if ( 2 === $returnCode ) {
@@ -202,6 +275,6 @@ class ClamAvScanner implements MalwareScannerInterface
      */
     protected function isBinaryAvailable(): bool
     {
-        return $this->binaryPath && file_exists( $this->binaryPath ) && is_executable( $this->binaryPath);
+        return $this->binaryPath && file_exists( $this->binaryPath ) && is_executable( $this->binaryPath );
     }
 }

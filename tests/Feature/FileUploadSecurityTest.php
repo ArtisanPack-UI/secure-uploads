@@ -498,6 +498,6 @@ class FileUploadSecurityTest extends TestCase
             $table->string( 'email' );
             $table->string( 'password' );
             $table->timestamps();
-        });
+        } );
     }
 }

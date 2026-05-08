@@ -39,6 +39,12 @@ class ScanQuarantinedFiles extends Command
         $limit          = (int) $this->option( 'limit' );
         $deleteInfected = $this->option( 'delete-infected' );
 
+        if ( $limit <= 0 ) {
+            $this->error( "Invalid --limit: must be a positive integer; got '{$this->option( 'limit' )}'." );
+
+            return self::FAILURE;
+        }
+
         $this->info( "Scanning up to {$limit} pending files using {$scanner->getName()}..." );
 
         $files = SecureUploadedFile::where( function ( $query ): void {

@@ -5,6 +5,7 @@ declare( strict_types=1 );
 namespace ArtisanPackUI\SecureUploads\Services;
 
 use Illuminate\Cache\RateLimiter;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -49,19 +50,16 @@ class FileUploadRateLimiter
             return false;
         }
 
-        // Check total size limit per hour
-        if ( ! $this->checkSizeLimit( $request, $fileSize ) ) {
+        // Atomically reserve hourly size budget. Done before hitting the
+        // per-minute/per-hour counters so a size-rejected upload doesn't
+        // burn the request quota.
+        if ( $fileSize > 0 && ! $this->reserveHourlySize( $request, $fileSize ) ) {
             return false;
         }
 
         // Increment counters
         $this->limiter->hit( $perMinuteKey, 60 );
         $this->limiter->hit( $perHourKey, 3600 );
-
-        // Track size
-        if ( $fileSize > 0 ) {
-            $this->incrementSizeTracking( $request, $fileSize );
-        }
 
         return true;
     }
@@ -102,7 +100,10 @@ class FileUploadRateLimiter
         $minuteAvailable = $this->limiter->availableIn( $key . ':minute' );
         $hourAvailable   = $this->limiter->availableIn( $key . ':hour' );
 
-        return min( $minuteAvailable, $hourAvailable );
+        // Return the longest active wait — `min()` would underreport when
+        // only the per-minute window has reset but the hourly cap is still
+        // blocking.
+        return max( $minuteAvailable, $hourAvailable );
     }
 
     /**
@@ -131,36 +132,65 @@ class FileUploadRateLimiter
 
     /**
      * Generate the rate limit key for a request.
+     *
+     * Uses the Authenticatable contract's getAuthIdentifier() rather than
+     * a raw ->id property so apps with non-standard primary keys (UUIDs,
+     * username-as-id, etc.) still produce a stable cache key.
      */
     protected function getKey( Request $request ): string
     {
-        $identifier = $request->user()?->id ?? $request->ip();
+        $user       = $request->user();
+        $identifier = $user instanceof Authenticatable
+            ? $user->getAuthIdentifier()
+            : $request->ip();
 
         return 'upload_limit:' . $identifier;
     }
 
     /**
-     * Check if the upload size is within hourly limits.
+     * Atomically reserve hourly upload-size budget.
+     *
+     * Combines the read-modify-write that previously lived in
+     * checkSizeLimit() + incrementSizeTracking() into a single atomic
+     * Cache::increment so two concurrent uploads can't both pass a check
+     * that would jointly overflow the hourly cap. On stores that don't
+     * support increment (e.g. file/array drivers in tests), the call
+     * returns false and we fall back to the non-atomic path — acceptable
+     * because those drivers aren't used in concurrent production.
+     *
+     * @return bool true if the budget was reserved, false if it would exceed the cap
      */
-    protected function checkSizeLimit( Request $request, int $fileSize ): bool
+    protected function reserveHourlySize( Request $request, int $fileSize ): bool
     {
         $config         = config( 'artisanpack.secure-uploads.rateLimiting', [] );
         $maxSizePerHour = $config['maxTotalSizePerHour'] ?? ( 100 * 1024 * 1024 );
 
-        $key         = $this->getKey( $request ) . ':size';
-        $currentSize = (int) Cache::get( $key, 0 );
+        $key = $this->getKey( $request ) . ':size';
 
-        return ( $currentSize + $fileSize ) <= $maxSizePerHour;
-    }
+        // Ensure the counter exists with the hourly TTL before we increment.
+        Cache::add( $key, 0, now()->addHour() );
 
-    /**
-     * Increment the size tracking for a request/user.
-     */
-    protected function incrementSizeTracking( Request $request, int $fileSize ): void
-    {
-        $key         = $this->getKey( $request ) . ':size';
-        $currentSize = (int) Cache::get( $key, 0 );
+        $newTotal = Cache::increment( $key, $fileSize );
 
-        Cache::put( $key, $currentSize + $fileSize, now()->addHour());
+        if ( false === $newTotal ) {
+            // Driver doesn't support atomic increment — fall back.
+            $current = (int) Cache::get( $key, 0 );
+            if ( ( $current + $fileSize ) > $maxSizePerHour ) {
+                return false;
+            }
+
+            Cache::put( $key, $current + $fileSize, now()->addHour() );
+
+            return true;
+        }
+
+        if ( $newTotal > $maxSizePerHour ) {
+            // Roll the reservation back so the next caller sees the real total.
+            Cache::decrement( $key, $fileSize );
+
+            return false;
+        }
+
+        return true;
     }
 }

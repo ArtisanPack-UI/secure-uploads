@@ -81,25 +81,43 @@ class ScanUploadedFiles
     }
 
     /**
-     * Get all uploaded files from the request.
+     * Get all uploaded files from the request, flattened to dot-notated keys.
      *
-     * @return array<string, UploadedFile|UploadedFile[]>
+     * Recurses into arbitrarily-nested arrays (e.g. `files[images][avatars][0]`)
+     * so deeply nested upload fields can't bypass the scanner.
+     *
+     * @return array<string, UploadedFile>
      */
     protected function getAllUploadedFiles( Request $request ): array
     {
         $files = [];
-
-        foreach ( $request->allFiles() as $key => $file ) {
-            if ( is_array( $file ) ) {
-                foreach ( $file as $index => $f ) {
-                    $files[ "{$key}.{$index}" ] = $f;
-                }
-            } else {
-                $files[ $key ] = $file;
-            }
-        }
+        $this->flattenUploadedFiles( $request->allFiles(), '', $files );
 
         return $files;
+    }
+
+    /**
+     * Recursively walk a (potentially nested) array of uploaded files,
+     * collecting every UploadedFile instance keyed by its dot-notated path.
+     *
+     * @param  array<int|string, mixed>     $input
+     * @param  array<string, UploadedFile>  $out
+     */
+    protected function flattenUploadedFiles( array $input, string $prefix, array &$out ): void
+    {
+        foreach ( $input as $key => $value ) {
+            $path = '' === $prefix ? (string) $key : "{$prefix}.{$key}";
+
+            if ( $value instanceof UploadedFile ) {
+                $out[ $path ] = $value;
+
+                continue;
+            }
+
+            if ( is_array( $value ) ) {
+                $this->flattenUploadedFiles( $value, $path, $out );
+            }
+        }
     }
 
     /**
