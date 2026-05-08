@@ -1,70 +1,95 @@
 <?php
 
-/**
- * Package service provider.
- *
- * Bootstraps the Package by registering services and bindings.
- *
- * @package    ArtisanPack_UI
- * @subpackage SecureUploads
- *
- * @author     Jacob Martella <me@jacobmartella.com>
- *
- * @since      1.0.0
- */
-
 declare( strict_types=1 );
 
 namespace ArtisanPackUI\SecureUploads;
 
+use ArtisanPackUI\SecureUploads\Console\Commands\CleanupExpiredFiles;
+use ArtisanPackUI\SecureUploads\Console\Commands\ScanQuarantinedFiles;
+use ArtisanPackUI\SecureUploads\Contracts\FileValidatorInterface;
+use ArtisanPackUI\SecureUploads\Contracts\MalwareScannerInterface;
+use ArtisanPackUI\SecureUploads\Contracts\SecureFileStorageInterface;
+use ArtisanPackUI\SecureUploads\Http\Middleware\ScanUploadedFiles;
+use ArtisanPackUI\SecureUploads\Http\Middleware\ValidateFileUpload;
+use ArtisanPackUI\SecureUploads\Services\FileUploadRateLimiter;
+use ArtisanPackUI\SecureUploads\Services\FileValidationService;
+use ArtisanPackUI\SecureUploads\Services\Scanners\ClamAvScanner;
+use ArtisanPackUI\SecureUploads\Services\Scanners\NullScanner;
+use ArtisanPackUI\SecureUploads\Services\Scanners\VirusTotalScanner;
+use ArtisanPackUI\SecureUploads\Services\SecureFileStorageService;
+use Illuminate\Cache\RateLimiter;
+use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * Service provider for the Package.
+ * Service provider for the Secure Uploads package.
  *
- * Bootstraps the Package by registering services and bindings.
- * Extend this class with your package's configuration, migrations,
- * routes, views, and other service registrations.
- *
- * @package    ArtisanPack_UI
- * @subpackage SecureUploads
- *
- * @since      1.0.0
+ * Registers file-validation, malware-scanning, secure-storage, and
+ * upload-rate-limiting services; loads the config, migrations, routes,
+ * middleware aliases, and console commands.
  */
 class SecureUploadsServiceProvider extends ServiceProvider
 {
     /**
-     * Registers any application services.
-     *
-     * Binds the Package class as a singleton in the container.
-     * Add additional service registrations here.
-     *
-     * @since 1.0.0
-     *
-     * @return void
+     * Register container bindings.
      */
     public function register(): void
     {
-        $this->app->singleton( 'secure-uploads', function ( $app ) {
-            return new SecureUploads();
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/artisanpack/secure-uploads.php',
+            'artisanpack.secure-uploads',
+        );
+
+        $this->app->singleton( 'secure-uploads', fn () => new SecureUploads() );
+
+        $this->app->singleton( FileValidatorInterface::class, FileValidationService::class );
+
+        $this->app->singleton( MalwareScannerInterface::class, function (): MalwareScannerInterface {
+            $driver = config( 'artisanpack.secure-uploads.malwareScanning.driver', 'null' );
+
+            return match ( $driver ) {
+                'clamav'     => new ClamAvScanner(),
+                'virustotal' => new VirusTotalScanner(),
+                default      => new NullScanner(),
+            };
+        } );
+
+        $this->app->singleton( FileUploadRateLimiter::class, function ( $app ): FileUploadRateLimiter {
+            return new FileUploadRateLimiter( $app->make( RateLimiter::class ) );
+        } );
+
+        $this->app->singleton( SecureFileStorageInterface::class, function ( $app ): SecureFileStorageInterface {
+            return new SecureFileStorageService(
+                $app->make( FilesystemManager::class ),
+                $app->make( FileValidatorInterface::class ),
+                $app->make( MalwareScannerInterface::class ),
+            );
         } );
     }
 
     /**
-     * Bootstraps any application services.
-     *
-     * Add package bootstrapping here such as:
-     * - Configuration publishing: $this->publishes([...])
-     * - Migration loading: $this->loadMigrationsFrom(...)
-     * - View loading: $this->loadViewsFrom(...)
-     * - Route loading: $this->loadRoutesFrom(...)
-     *
-     * @since 1.0.0
-     *
-     * @return void
+     * Bootstrap package services.
      */
     public function boot(): void
     {
-        // Add your package bootstrapping here
+        $this->publishes( [
+            __DIR__ . '/../config/artisanpack/secure-uploads.php'
+                => config_path( 'artisanpack/secure-uploads.php' ),
+        ], 'secure-uploads-config' );
+
+        $this->loadMigrationsFrom( __DIR__ . '/../database/migrations' );
+
+        $this->loadRoutesFrom( __DIR__ . '/../routes/secure-files.php' );
+
+        $router = $this->app['router'];
+        $router->aliasMiddleware( 'validate.upload', ValidateFileUpload::class );
+        $router->aliasMiddleware( 'scan.upload', ScanUploadedFiles::class );
+
+        if ( $this->app->runningInConsole() ) {
+            $this->commands( [
+                CleanupExpiredFiles::class,
+                ScanQuarantinedFiles::class,
+            ] );
+        }
     }
 }
