@@ -235,16 +235,16 @@ class HasSecureFilesTraitTest extends TestCase
         // Create users table for 2FA migration
         $app['db']->connection()->getSchemaBuilder()->create( 'users', function ( $table ): void {
             $table->id();
-            $table->string( 'name');
-            $table->string( 'email');
-            $table->string( 'password');
+            $table->string( 'name' );
+            $table->string( 'email' );
+            $table->string( 'password' );
             $table->timestamps();
-        });
+        } );
 
         // Create test_models table
-        $app['db']->connection()->getSchemaBuilder()->create( 'test_models', function ( $table): void {
+        $app['db']->connection()->getSchemaBuilder()->create( 'test_models', function ( $table ): void {
             $table->id();
-            $table->string( 'name');
+            $table->string( 'name' );
             $table->timestamps();
         });
     }

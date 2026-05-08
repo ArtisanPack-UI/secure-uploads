@@ -162,13 +162,28 @@ class VirusTotalScanner implements MalwareScannerInterface
                 return ScanResult::error( 'Failed to get upload URL', $this->getName() );
             }
 
-            // Upload file
-            $response = Http::timeout( $this->timeout )
-                ->withHeaders( [
-                    'x-apikey' => $this->apiKey,
-                ] )
-                ->attach( 'file', fopen( $filePath, 'r' ), basename( $filePath ) )
-                ->post( $uploadUrl );
+            // Upload file — open the stream up-front so we can detect fopen
+            // failures and guarantee fclose runs even if Http::post throws.
+            $stream = fopen( $filePath, 'r' );
+
+            if ( false === $stream ) {
+                Log::error( 'VirusTotal: unable to open file for upload', [ 'path' => $filePath ] );
+
+                return ScanResult::error( 'Failed to open file for upload', $this->getName() );
+            }
+
+            try {
+                $response = Http::timeout( $this->timeout )
+                    ->withHeaders( [
+                        'x-apikey' => $this->apiKey,
+                    ] )
+                    ->attach( 'file', $stream, basename( $filePath ) )
+                    ->post( $uploadUrl );
+            } finally {
+                if ( is_resource( $stream ) ) {
+                    fclose( $stream );
+                }
+            }
 
             if ( ! $response->successful() ) {
                 return ScanResult::error( 'Failed to upload file', $this->getName() );
@@ -300,7 +315,7 @@ class VirusTotalScanner implements MalwareScannerInterface
                 'malicious'  => $malicious,
                 'suspicious' => $suspicious,
                 'undetected' => $stats['undetected'] ?? 0,
-            ]);
+            ] );
         }
 
         return ScanResult::clean( $this->getName(), [

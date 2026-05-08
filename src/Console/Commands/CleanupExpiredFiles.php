@@ -31,6 +31,12 @@ class CleanupExpiredFiles extends Command
         $onlyInfected = $this->option( 'only-infected' );
         $dryRun       = $this->option( 'dry-run' );
 
+        if ( $days <= 0 ) {
+            $this->error( "The --days option must be a positive integer; got '{$this->option( 'days' )}'." );
+
+            return self::FAILURE;
+        }
+
         $cutoffDate = now()->subDays( $days );
 
         $this->info( "Finding files older than {$days} days (before {$cutoffDate->toDateString()})..." );
@@ -108,10 +114,10 @@ class CleanupExpiredFiles extends Command
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-        for ( $i = 0; $bytes > 1024 && $i < count( $units ) - 1; $i++ ) {
+        for ( $i = 0; $bytes >= 1024 && $i < count( $units ) - 1; $i++ ) {
             $bytes /= 1024;
         }
 
-        return round( $bytes, 2) . ' ' . $units[ $i ];
+        return round( $bytes, 2 ) . ' ' . $units[ $i ];
     }
 }

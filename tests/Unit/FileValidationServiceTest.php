@@ -219,10 +219,10 @@ class FileValidationServiceTest extends TestCase
         Config::set( 'artisanpack.secure-uploads.blockedMimeTypes', [
             'application/x-msdownload',
             'application/x-php',
-        ]);
-        Config::set( 'artisanpack.secure-uploads.maxFileSize', 10 * 1024 * 1024);
-        Config::set( 'artisanpack.secure-uploads.checkForDoubleExtensions', true);
-        Config::set( 'artisanpack.secure-uploads.checkForNullBytes', true);
+        ] );
+        Config::set( 'artisanpack.secure-uploads.maxFileSize', 10 * 1024 * 1024 );
+        Config::set( 'artisanpack.secure-uploads.checkForDoubleExtensions', true );
+        Config::set( 'artisanpack.secure-uploads.checkForNullBytes', true );
         Config::set( 'artisanpack.secure-uploads.validateMimeByContent', false);
     }
 }

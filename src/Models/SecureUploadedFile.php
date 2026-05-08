@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\URL;
 
 class SecureUploadedFile extends Model
 {
-    use HasFactory;use HasUuids;use SoftDeletes;
+    use HasFactory;
+use HasUuids;
+use SoftDeletes;
 
     /**
      * The table associated with the model.
@@ -67,7 +69,7 @@ class SecureUploadedFile extends Model
     public function uploadedBy(): BelongsTo
     {
         $userModel = config( 'artisanpack.secure-uploads.user_model' )
-            ?? config( 'artisanpack.media.user_model' )
+            ?? config( 'artisanpack.security.user_model' )
             ?? config( 'auth.providers.users.model', 'App\\Models\\User' );
 
         return $this->belongsTo( $userModel, 'uploaded_by' );
@@ -315,7 +317,7 @@ class SecureUploadedFile extends Model
     /**
      * Scope: By uploader.
      */
-    public function scopeByUploader( Builder $query, int $userId): Builder
+    public function scopeByUploader( Builder $query, int $userId ): Builder
     {
         return $query->where( 'uploaded_by', $userId);
     }

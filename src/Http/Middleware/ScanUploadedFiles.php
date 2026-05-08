@@ -157,6 +157,6 @@ class ScanUploadedFiles
         return redirect()
             ->back()
             ->withInput()
-            ->withErrors( [$field => $message], 'file_upload');
+            ->withErrors( [$field => $message], 'file_upload' );
     }
 }

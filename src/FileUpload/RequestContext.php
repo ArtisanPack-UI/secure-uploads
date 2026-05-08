@@ -38,7 +38,7 @@ class RequestContext
         return new self(
             ipAddress: $request->ip(),
             userAgent: $request->userAgent(),
-            url: $request->fullUrl(),
+            url: $request->getPathInfo(),
             method: $request->method(),
             headers: self::extractSafeHeaders( $request ),
         );
@@ -75,7 +75,6 @@ class RequestContext
             'accept',
             'accept-language',
             'content-type',
-            'referer',
             'origin',
             'x-requested-with',
         ];
@@ -85,6 +84,17 @@ class RequestContext
             $value = $request->header( $header );
             if ( null !== $value ) {
                 $headers[ $header ] = $value;
+            }
+        }
+
+        // Strip query strings (and any auth fragments) from referer-style headers
+        // so signed-URL tokens can't leak into serialized event payloads.
+        $referer = $request->header( 'referer' );
+        if ( null !== $referer ) {
+            $host = parse_url( $referer, PHP_URL_HOST );
+            $path = parse_url( $referer, PHP_URL_PATH );
+            if ( is_string( $host ) && '' !== $host ) {
+                $headers['referer'] = $host . ( is_string( $path ) ? $path : '' );
             }
         }
 

@@ -158,17 +158,17 @@ class SecureFileController extends Controller
             return response()->file( $fullPath, $headers );
         }
 
-        // For cloud storage, use streamed response
+        // For cloud storage, open the stream up-front so read failures are
+        // detected before headers/status get committed to the client.
+        $stream = $disk->readStream( $path );
+        if ( ! is_resource( $stream ) ) {
+            abort( 500, 'Unable to read file.' );
+        }
+
         return response()->stream(
-            function () use ( $disk, $path ): void {
-                $stream = $disk->readStream( $path );
-                if ( null === $stream || false === $stream ) {
-                    abort( 500, 'Unable to read file.' );
-                }
+            function () use ( $stream ): void {
                 fpassthru( $stream );
-                if ( is_resource( $stream ) ) {
-                    fclose( $stream );
-                }
+                fclose( $stream );
             },
             200,
             $headers,
@@ -191,11 +191,11 @@ class SecureFileController extends Controller
         $escapedFilename = addcslashes( $asciiFilename, '"\\' );
 
         // Build the header with both filename (ASCII) and filename* (UTF-8)
-        $header = sprintf( '%s; filename="%s"', $disposition, $escapedFilename);
+        $header = sprintf( '%s; filename="%s"', $disposition, $escapedFilename );
 
         // Add RFC 5987 encoded filename* for UTF-8 support if original differs from ASCII version
-        if ( $filename !== $asciiFilename) {
-            $header .= sprintf( "; filename*=UTF-8''%s", rawurlencode( $filename));
+        if ( $filename !== $asciiFilename ) {
+            $header .= sprintf( "; filename*=UTF-8''%s", rawurlencode( $filename ) );
         }
 
         return $header;

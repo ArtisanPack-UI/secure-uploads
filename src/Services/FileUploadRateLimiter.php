@@ -159,7 +159,7 @@ class FileUploadRateLimiter
     protected function incrementSizeTracking( Request $request, int $fileSize ): void
     {
         $key         = $this->getKey( $request ) . ':size';
-        $currentSize = (int) Cache::get( $key, 0);
+        $currentSize = (int) Cache::get( $key, 0 );
 
         Cache::put( $key, $currentSize + $fileSize, now()->addHour());
     }

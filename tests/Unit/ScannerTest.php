@@ -194,10 +194,10 @@ class ScannerTest extends TestCase
         ];
     }
 
-    protected function getEnvironmentSetUp( $app): void
+    protected function getEnvironmentSetUp( $app ): void
     {
-        Config::set( 'artisanpack.secure-uploads.enabled', true);
-        Config::set( 'artisanpack.secure-uploads.malwareScanning.enabled', true);
-        Config::set( 'artisanpack.secure-uploads.malwareScanning.driver', 'null');
+        Config::set( 'artisanpack.secure-uploads.enabled', true );
+        Config::set( 'artisanpack.secure-uploads.malwareScanning.enabled', true );
+        Config::set( 'artisanpack.secure-uploads.malwareScanning.driver', 'null' );
     }
 }

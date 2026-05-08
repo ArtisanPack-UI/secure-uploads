@@ -157,12 +157,12 @@ class ValidateFileUpload
             return response()->json( [
                 'message' => 'File validation failed.',
                 'errors'  => $errors,
-            ], 422);
+            ], 422 );
         }
 
         return redirect()
             ->back()
             ->withInput()
-            ->withErrors( $errors, 'file_upload');
+            ->withErrors( $errors, 'file_upload' );
     }
 }

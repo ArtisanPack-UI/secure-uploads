@@ -12,7 +12,9 @@ use Illuminate\Queue\SerializesModels;
 
 class FileUploadRejected
 {
-    use Dispatchable;use InteractsWithSockets;use SerializesModels;
+    use Dispatchable;
+use InteractsWithSockets;
+use SerializesModels;
 
     /**
      * Create a new event instance.

@@ -194,7 +194,7 @@ class ClamAvScanner implements MalwareScannerInterface
      */
     protected function isSocketAvailable(): bool
     {
-        return file_exists( $this->socketPath) && is_readable( $this->socketPath);
+        return file_exists( $this->socketPath ) && is_readable( $this->socketPath );
     }
 
     /**
@@ -202,6 +202,6 @@ class ClamAvScanner implements MalwareScannerInterface
      */
     protected function isBinaryAvailable(): bool
     {
-        return $this->binaryPath && file_exists( $this->binaryPath) && is_executable( $this->binaryPath);
+        return $this->binaryPath && file_exists( $this->binaryPath ) && is_executable( $this->binaryPath);
     }
 }

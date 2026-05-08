@@ -479,24 +479,24 @@ class FileUploadSecurityTest extends TestCase
         Config::set( 'artisanpack.secure-uploads.storage.path', 'secure-uploads' );
         Config::set( 'artisanpack.secure-uploads.rateLimiting.enabled', false );
 
-        Config::set( 'database.default', 'testbench');
+        Config::set( 'database.default', 'testbench' );
         Config::set( 'database.connections.testbench', [
             'driver'   => 'sqlite',
             'database' => ':memory:',
             'prefix'   => '',
-        ]);
+        ] );
 
         Config::set( 'filesystems.disks.local', [
             'driver' => 'local',
-            'root'   => storage_path( 'app'),
-        ]);
+            'root'   => storage_path( 'app' ),
+        ] );
 
         // Create users table for 2FA migration
-        $app['db']->connection()->getSchemaBuilder()->create( 'users', function ( $table): void {
+        $app['db']->connection()->getSchemaBuilder()->create( 'users', function ( $table ): void {
             $table->id();
-            $table->string( 'name');
-            $table->string( 'email');
-            $table->string( 'password');
+            $table->string( 'name' );
+            $table->string( 'email' );
+            $table->string( 'password' );
             $table->timestamps();
         });
     }

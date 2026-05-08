@@ -65,7 +65,7 @@ class ScanQuarantinedFiles extends Command
 
         foreach ( $files as $file ) {
             if ( ! $file->existsInStorage() ) {
-                $file->delete();
+                $file->forceDelete();
                 $this->output->progressAdvance();
 
                 continue;
@@ -118,7 +118,7 @@ class ScanQuarantinedFiles extends Command
             if ( $deleteInfected ) {
                 $this->info( 'Infected files have been deleted.' );
             } else {
-                $this->info( 'Run with --delete-infected to automatically remove infected files.');
+                $this->info( 'Run with --delete-infected to automatically remove infected files.' );
             }
         }
 

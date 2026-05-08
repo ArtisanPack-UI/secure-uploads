@@ -10,6 +10,7 @@ use ArtisanPackUI\SecureUploads\Models\SecureUploadedFile;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use LogicException;
 
 /**
  * Trait for models that have secure file attachments.
@@ -52,6 +53,13 @@ trait HasSecureFiles
      */
     public function attachSecureFile( UploadedFile $file, array $options = [] ): StoredFile
     {
+        if ( ! $this->exists || null === $this->getKey() ) {
+            throw new LogicException(
+                'Cannot attach a secure file to an unsaved model. '
+                . 'Save the parent model before calling attachSecureFile() so the morph relation can be persisted.',
+            );
+        }
+
         $storage = app( SecureFileStorageInterface::class );
 
         $storedFile = $storage->store( $file, array_merge( $options, [

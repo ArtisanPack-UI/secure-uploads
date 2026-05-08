@@ -79,20 +79,26 @@ class SecureFile implements Rule
         if ( $this->scanForMalware && config( 'artisanpack.secure-uploads.malwareScanning.enabled', false ) ) {
             $scanner = app( MalwareScannerInterface::class );
 
-            if ( $scanner->isAvailable() ) {
-                $scanResult = $scanner->scan( $value->getPathname() );
+            // Fail closed: if scanning is required but the scanner is unavailable,
+            // reject the file rather than silently letting it through.
+            if ( ! $scanner->isAvailable() ) {
+                $this->errors[] = 'Malware scanner unavailable; cannot verify file safety.';
 
-                if ( $scanResult->isInfected() ) {
-                    $this->errors[] = 'The file has been flagged as potentially dangerous.';
+                return false;
+            }
 
-                    return false;
-                }
+            $scanResult = $scanner->scan( $value->getPathname() );
 
-                if ( $scanResult->hasError() && config( 'artisanpack.secure-uploads.malwareScanning.failOnScanError', true ) ) {
-                    $this->errors[] = 'Unable to verify file safety. Please try again.';
+            if ( $scanResult->isInfected() ) {
+                $this->errors[] = 'The file has been flagged as potentially dangerous.';
 
-                    return false;
-                }
+                return false;
+            }
+
+            if ( $scanResult->hasError() && config( 'artisanpack.secure-uploads.malwareScanning.failOnScanError', true ) ) {
+                $this->errors[] = 'Unable to verify file safety. Please try again.';
+
+                return false;
             }
         }
 

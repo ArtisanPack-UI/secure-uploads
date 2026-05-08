@@ -89,7 +89,7 @@ class SecureUploadsServiceProvider extends ServiceProvider
             $this->commands( [
                 CleanupExpiredFiles::class,
                 ScanQuarantinedFiles::class,
-            ]);
+            ] );
         }
     }
 }
