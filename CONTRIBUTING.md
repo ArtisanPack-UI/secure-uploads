@@ -9,7 +9,7 @@ As an open-source project, the `artisanpack-ui/secure-uploads` package is open t
 - [Getting Started](#getting-started)
 - [Issue Templates](#issue-templates)
 - [Branching Strategy](#branching-strategy)
-- [Pull Request Process](#merge-request-process)
+- [Pull Request Process](#pull-request-process)
 - [Label System](#label-system)
 - [Milestone Strategy](#milestone-strategy)
 - [Forking and Contributing](#forking-and-contributing)
