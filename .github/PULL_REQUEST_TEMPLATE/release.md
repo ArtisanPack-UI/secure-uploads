@@ -103,10 +103,12 @@
 1. 
 2. 
 
-**Configuration changes:**
+### Configuration changes
+
 - 
 
-**Environment variables:**
+### Environment variables
+
 - 
 
 ## Post-Release Tasks

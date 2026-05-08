@@ -2,7 +2,7 @@
   "name": "artisanpack-ui/secure-uploads",
   "description": "File upload security for Laravel — content-type validation, filename sanitization, malware scanning (ClamAV / VirusTotal), rate limiting, secure storage, and quarantine.",
   "type": "library",
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "version": "0.1.0",
   "keywords": [
     "laravel",

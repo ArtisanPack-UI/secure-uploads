@@ -336,13 +336,13 @@ ArtisanPack UI is primarily hosted on GitLab, but you can contribute from any Gi
 
 2. **Clone your fork**
    ```bash
-   git clone git@gitlab.com:your-username/artisanpack-ui-package.git
-   cd artisanpack-ui-package
+   git clone git@gitlab.com:your-username/secure-uploads.git
+   cd secure-uploads
    ```
 
 3. **Add upstream remote**
    ```bash
-   git remote add upstream git@gitlab.com:jacob-martella-web-design/artisanpack-ui/package-name.git
+   git remote add upstream git@gitlab.com:jacob-martella-web-design/artisanpack-ui/secure-uploads.git
    ```
 
 4. **Create feature branch**
@@ -370,8 +370,8 @@ ArtisanPack UI is primarily hosted on GitLab, but you can contribute from any Gi
 
 1. **Clone on GitLab** (even without account)
    ```bash
-   git clone https://gitlab.com/jacob-martella-web-design/artisanpack-ui/package-name.git
-   cd package-name
+   git clone https://gitlab.com/jacob-martella-web-design/artisanpack-ui/secure-uploads.git
+   cd secure-uploads
    ```
 
 2. **Create repository on GitHub**
@@ -380,7 +380,7 @@ ArtisanPack UI is primarily hosted on GitLab, but you can contribute from any Gi
 
 3. **Add GitHub as remote**
    ```bash
-   git remote add github git@github.com:your-username/package-name.git
+   git remote add github git@github.com:your-username/secure-uploads.git
    ```
 
 4. **Create feature branch**
@@ -413,15 +413,15 @@ Similar to GitHub process:
 
 1. **Clone from GitLab**
    ```bash
-   git clone https://gitlab.com/jacob-martella-web-design/artisanpack-ui/package-name.git
-   cd package-name
+   git clone https://gitlab.com/jacob-martella-web-design/artisanpack-ui/secure-uploads.git
+   cd secure-uploads
    ```
 
 2. **Create Bitbucket repository**
 
 3. **Add Bitbucket remote**
    ```bash
-   git remote add bitbucket git@bitbucket.org:your-username/package-name.git
+   git remote add bitbucket git@bitbucket.org:your-username/secure-uploads.git
    ```
 
 4. **Push to Bitbucket**
@@ -442,8 +442,8 @@ Similar to GitHub process:
 
 1. **Clone project**
    ```bash
-   git clone https://gitlab.com/jacob-martella-web-design/artisanpack-ui/package-name.git
-   cd package-name
+   git clone https://gitlab.com/jacob-martella-web-design/artisanpack-ui/secure-uploads.git
+   cd secure-uploads
    ```
 
 2. **Create feature branch**
@@ -494,7 +494,7 @@ git push origin main
 
 ```bash
 # Add GitLab as upstream
-git remote add upstream https://gitlab.com/jacob-martella-web-design/artisanpack-ui/package-name.git
+git remote add upstream https://gitlab.com/jacob-martella-web-design/artisanpack-ui/secure-uploads.git
 
 # Fetch and merge
 git fetch upstream
@@ -547,7 +547,7 @@ To keep things consistent across the code base, it's important to follow these n
 
 Follow conventional commit format:
 
-```
+```text
 type: Short description
 
 Longer description if needed.
@@ -565,7 +565,8 @@ Closes #123
 - `chore:` - Maintenance tasks
 
 **Examples:**
-```
+
+```text
 feat: Add dark mode support
 
 Implements dark mode theme with toggle in settings.
@@ -574,7 +575,7 @@ Includes proper color contrast for accessibility.
 Closes #456
 ```
 
-```
+```text
 fix: Resolve navigation menu overlap on mobile
 
 Menu was overlapping content on screens < 768px.
