@@ -53,7 +53,12 @@ class ScanUploadedFiles
             return $next( $request );
         }
 
-        // Scan each file
+        // Scan each file. Track whether *every* scan completed cleanly so
+        // we don't mark the request "passed" when a swallowed exception or
+        // an errored scan slipped through under lax (failOnScanError=false)
+        // policy.
+        $allClean = true;
+
         foreach ( $files as $key => $file ) {
             if ( ! ( $file instanceof UploadedFile ) ) {
                 continue;
@@ -64,7 +69,8 @@ class ScanUploadedFiles
             } catch ( Throwable $e ) {
                 // A scanner that throws shouldn't 500 the whole request.
                 // Mirror the existing failOnScanError policy: reject when
-                // strict, otherwise log and let the upload through.
+                // strict, otherwise log and let the upload through — but
+                // never claim the scan passed for that file.
                 Log::warning( 'ScanUploadedFiles: scanner threw an exception', [
                     'field'   => $key,
                     'message' => $e->getMessage(),
@@ -73,6 +79,8 @@ class ScanUploadedFiles
                 if ( config( 'artisanpack.secure-uploads.malwareScanning.failOnScanError', true ) ) {
                     return $this->scanErrorResponse( $request, $key );
                 }
+
+                $allClean = false;
 
                 continue;
             }
@@ -89,13 +97,20 @@ class ScanUploadedFiles
                 return $this->malwareDetectedResponse( $request, $key, $result->threatName );
             }
 
-            if ( $result->hasError() && config( 'artisanpack.secure-uploads.malwareScanning.failOnScanError', true ) ) {
-                return $this->scanErrorResponse( $request, $key );
+            if ( $result->hasError() ) {
+                if ( config( 'artisanpack.secure-uploads.malwareScanning.failOnScanError', true ) ) {
+                    return $this->scanErrorResponse( $request, $key );
+                }
+
+                $allClean = false;
+
+                continue;
             }
         }
 
-        // Attach scan results to request
-        $request->attributes->set( 'malware_scan_passed', true );
+        if ( $allClean ) {
+            $request->attributes->set( 'malware_scan_passed', true );
+        }
 
         return $next( $request );
     }
