@@ -128,6 +128,7 @@ class FileUploadRateLimiter
         $this->limiter->clear( $key . ':minute' );
         $this->limiter->clear( $key . ':hour' );
         Cache::forget( $key . ':size' );
+        Cache::forget( $key . ':size:reset' );
     }
 
     /**
@@ -165,21 +166,31 @@ class FileUploadRateLimiter
         $config         = config( 'artisanpack.secure-uploads.rateLimiting', [] );
         $maxSizePerHour = $config['maxTotalSizePerHour'] ?? ( 100 * 1024 * 1024 );
 
-        $key = $this->getKey( $request ) . ':size';
+        $key      = $this->getKey( $request ) . ':size';
+        $resetKey = $key . ':reset';
 
-        // Ensure the counter exists with the hourly TTL before we increment.
+        // Pin the window's deadline once, when the counter is first created,
+        // so subsequent fallback updates can preserve the original TTL
+        // rather than sliding it forward on every write.
+        $windowResetAt = now()->addHour()->getTimestamp();
         Cache::add( $key, 0, now()->addHour() );
+        Cache::add( $resetKey, $windowResetAt, now()->addHour() );
 
         $newTotal = Cache::increment( $key, $fileSize );
 
         if ( false === $newTotal ) {
-            // Driver doesn't support atomic increment — fall back.
+            // Driver doesn't support atomic increment — fall back, but
+            // keep the original window deadline so this isn't effectively
+            // a sliding window.
             $current = (int) Cache::get( $key, 0 );
             if ( ( $current + $fileSize ) > $maxSizePerHour ) {
                 return false;
             }
 
-            Cache::put( $key, $current + $fileSize, now()->addHour() );
+            $resetAt = (int) Cache::get( $resetKey, $windowResetAt );
+            $ttl     = max( 1, $resetAt - now()->getTimestamp() );
+
+            Cache::put( $key, $current + $fileSize, now()->addSeconds( $ttl ) );
 
             return true;
         }

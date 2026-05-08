@@ -10,7 +10,9 @@ use ArtisanPackUI\SecureUploads\FileUpload\RequestContext;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class ScanUploadedFiles
 {
@@ -53,24 +55,42 @@ class ScanUploadedFiles
 
         // Scan each file
         foreach ( $files as $key => $file ) {
-            if ( $file instanceof UploadedFile ) {
+            if ( ! ( $file instanceof UploadedFile ) ) {
+                continue;
+            }
+
+            try {
                 $result = $this->scanner->scan( $file->getPathname() );
+            } catch ( Throwable $e ) {
+                // A scanner that throws shouldn't 500 the whole request.
+                // Mirror the existing failOnScanError policy: reject when
+                // strict, otherwise log and let the upload through.
+                Log::warning( 'ScanUploadedFiles: scanner threw an exception', [
+                    'field'   => $key,
+                    'message' => $e->getMessage(),
+                ] );
 
-                if ( $result->isInfected() ) {
-                    // Dispatch malware detected event
-                    event( new MalwareDetected(
-                        $file->getClientOriginalName(),
-                        $result,
-                        $request->user(),
-                        RequestContext::fromRequest( $request ),
-                    ) );
-
-                    return $this->malwareDetectedResponse( $request, $key, $result->threatName );
-                }
-
-                if ( $result->hasError() && config( 'artisanpack.secure-uploads.malwareScanning.failOnScanError', true ) ) {
+                if ( config( 'artisanpack.secure-uploads.malwareScanning.failOnScanError', true ) ) {
                     return $this->scanErrorResponse( $request, $key );
                 }
+
+                continue;
+            }
+
+            if ( $result->isInfected() ) {
+                // Dispatch malware detected event
+                event( new MalwareDetected(
+                    $file->getClientOriginalName(),
+                    $result,
+                    $request->user(),
+                    RequestContext::fromRequest( $request ),
+                ) );
+
+                return $this->malwareDetectedResponse( $request, $key, $result->threatName );
+            }
+
+            if ( $result->hasError() && config( 'artisanpack.secure-uploads.malwareScanning.failOnScanError', true ) ) {
+                return $this->scanErrorResponse( $request, $key );
             }
         }
 
