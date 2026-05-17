@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Secure Uploads service provider.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage SecureUploads
+ *
+ * @author     Jacob Martella <support@artisanpackui.dev>
+ *
+ * @since      1.0.0
+ */
+
 declare( strict_types=1 );
 
 namespace ArtisanPackUI\SecureUploads;

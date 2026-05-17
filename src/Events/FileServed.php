@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * FileServed event — fired when a signed-URL request hits SecureFileController.
+ *
+ * @package    ArtisanPack_UI
+ * @subpackage SecureUploads
+ *
+ * @author     Jacob Martella <support@artisanpackui.dev>
+ *
+ * @since      1.0.0
+ */
+
 declare( strict_types=1 );
 
 namespace ArtisanPackUI\SecureUploads\Events;
