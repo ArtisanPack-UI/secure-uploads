@@ -28,9 +28,9 @@ $stored = $post->attachSecureFile($request->file('attachment'));
 // Signed URL
 $url = secure_uploads()->generateSecureUrl($stored->identifier);
 
-// Routes (auto-loaded)
-Route::signedRoute('secure-file.show', ['identifier' => $stored->identifier]);
-Route::signedRoute('secure-file.download', ['identifier' => $stored->identifier]);
+// Signed route URLs (auto-loaded — routes registered by the service provider)
+URL::signedRoute('secure-file.show', ['identifier' => $stored->identifier]);
+URL::signedRoute('secure-file.download', ['identifier' => $stored->identifier]);
 
 // Middleware
 Route::post('/upload', ...)->middleware(['validate.upload', 'scan.upload']);

@@ -10,7 +10,7 @@ Four events fire across the upload lifecycle. All four use Laravel's class-based
 |---|---|---|
 | `FileUploaded` | After validation, scan, and storage all succeed | `SecureUploadedFile $file`, `RequestContext $context` |
 | `FileUploadRejected` | When validation fails | `UploadedFile $file`, `ValidationResult $result`, `RequestContext $context` |
-| `MalwareDetected` | When a scan returns `infected = true` | `SecureUploadedFile|UploadedFile $file`, `ScanResult $scanResult`, `RequestContext $context` |
+| `MalwareDetected` | When a scan returns `infected = true` | `SecureUploadedFile\|UploadedFile $file`, `ScanResult $scanResult`, `RequestContext $context` |
 | `FileServed` | When a signed-URL request hits `SecureFileController::show()` or `download()` | `SecureUploadedFile $file`, `Request $request` |
 
 ## Listening

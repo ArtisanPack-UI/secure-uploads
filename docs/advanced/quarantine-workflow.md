@@ -23,7 +23,7 @@ $post->attachSecureFile($file, ['async' => true]);
 
 ## The flow
 
-```
+```text
 Upload arrives
    │
    ▼

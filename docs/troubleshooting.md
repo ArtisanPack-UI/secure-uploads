@@ -25,7 +25,7 @@ clamscan --version
 ls -la /var/run/clamav/clamd.sock
 ```
 
-If the socket exists but errors on connect, the user running PHP (often `www-data`) isn't in the `clamav` group. Add them and restart PHP-FPM. Or set the daemon's socket permissions to be world-readable.
+If the socket exists but errors on connect, the user running PHP (often `www-data`) likely isn't in the `clamav` group. Add the PHP user to the `clamav` group and restart PHP-FPM. Avoid making the socket world-readable — keep the daemon socket group-owned with restrictive permissions (e.g. `0660`) so least-privilege access is preserved.
 
 If neither socket nor binary works, the scanner's `isAvailable()` returns `false`. With `failOnScanError = true`, every upload is rejected. Either restore ClamAV, set the driver to `null` temporarily, or flip `failOnScanError` to `false` (and accept the security risk).
 
@@ -52,8 +52,8 @@ Hardcode the disk in your call or set up matching disks across environments.
 Check three things:
 
 1. **Is the scheduler running?** `php artisan schedule:work` or your cron entry.
-2. **Is `security:scan-quarantine` actually scheduled?** Inspect `app/Console/Kernel.php`.
-3. **Is the scanner returning errors instead of clean/infected?** Files in `scan_status = 'error'` are retried but never resolved without a working scanner. Run the command manually and watch the output.
+2. **Is `security:scan-quarantine` actually scheduled?** Inspect the relevant file for your Laravel version: `app/Console/Kernel.php` (Laravel 10), or `routes/console.php` / `bootstrap/app.php` `withSchedule()` (Laravel 11+).
+3. **Does the scanner return errors instead of clean/infected?** Files in `scan_status = 'error'` are retried but never resolved without a working scanner. Run the command manually and watch the output.
 
 ## `FileUploaded` event listeners aren't firing
 
