@@ -46,9 +46,9 @@
     "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
     "friendsofphp/php-cs-fixer": "^3.75",
     "laravel/pint": "^1.26",
-    "orchestra/testbench": "^10.2",
-    "pestphp/pest": "^3.8",
-    "pestphp/pest-plugin-laravel": "^3.2"
+    "orchestra/testbench": "^9.0|^10.0|^11.0",
+    "pestphp/pest": "^3.8|^4.0",
+    "pestphp/pest-plugin-laravel": "^3.2|^4.0"
   },
   "scripts": {
     "lint": [
@@ -64,9 +64,6 @@
     "allow-plugins": {
       "pestphp/pest-plugin": true,
       "dealerdirect/phpcodesniffer-composer-installer": true
-    },
-    "platform": {
-      "php": "8.2"
     }
   },
   "extra": {

@@ -50,7 +50,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        laravel: ['10', '11', '12', '13']
+        laravel: ['11', '12', '13']
         php: ['8.2', '8.3', '8.4']
         exclude:
           # Laravel 13 requires PHP 8.3+
@@ -93,7 +93,7 @@ jobs:
         run: composer require "illuminate/support:^${{ matrix.laravel }}.0" --no-update --no-interaction
 
       - name: Install dependencies
-        run: composer update --no-interaction --prefer-dist --prefer-stable
+        run: composer update --no-interaction --prefer-dist
 
       - name: Run Unit tests
         env:
