@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-06-14
+
+### Changed
+
+- Widened `illuminate/support` constraint to `^10.0|^11.0|^12.0|^13.0` to support Laravel 13. ([#14](https://github.com/ArtisanPack-UI/secure-uploads/issues/14))
+- Widened `symfony/mime` constraint to `^6.0|^7.0|^8.0`. Laravel 13 requires `symfony/mime ^8.1`; this was the hard blocker. ([#14](https://github.com/ArtisanPack-UI/secure-uploads/issues/14))
+- Replaced the single CI test job with a Laravel × PHP matrix (L10/11/12/13 × PHP 8.2/8.3/8.4, excluding L13 + PHP 8.2) so every supported framework version is continuously exercised. ([#14](https://github.com/ArtisanPack-UI/secure-uploads/issues/14))
+
 ## [1.0.0] - 2026-05-18
 
 ### Added
